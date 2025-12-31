@@ -40,35 +40,27 @@ coderabbit-review/
 
 ## Workflow
 
+```mermaid
+flowchart TD
+    A[Detect PR] --> B[Fetch CR comments]
+    B --> C[Parse labels & sections]
+    C --> D{>= 3 comments?}
+    D -->|Yes| E[Create tracker file]
+    D -->|No| F
+    E --> F[Evaluate each comment]
+    F --> G{Simple fix?}
+    G -->|Yes| H[Fix immediately]
+    G -->|No| I{Valid but risky?}
+    I -->|Yes| J[Defer → Linear]
+    I -->|No| K{Intentional?}
+    K -->|Yes| L[Skip]
+    K -->|No| M[5-agent evaluation]
+    H & J & L & M --> N[Reply to thread]
+    N --> O[Update tracker]
 ```
-1. Detect PR → Fetch CodeRabbit comments
-2. Parse labels & collapsible sections
-3. For each comment:
-   ├─ Simple nitpick? → Fix immediately
-   ├─ Valid but risky? → Create Linear issue
-   ├─ Intentional? → Skip with reason
-   └─ Complex? → Run 5-agent evaluation
-4. Reply to every thread (@coderabbitai)
-5. Update tracker file
-```
-
-## Nitpick Fast-Track
-
-Simple nitpicks are fixed immediately (AI time is cheap):
-
-| Type | Action |
-|------|--------|
-| Formatting, style | Fix it |
-| Simple refactor | Fix it |
-| Intentional pattern | Skip |
-| Breaking change | Defer → Linear |
 
 ## Requirements
 
 - GitHub CLI (`gh`) for API access
 - Linear MCP server (optional, for backlog items)
 - Claude Code with Task tool support
-
-## License
-
-MIT
